@@ -123,26 +123,35 @@ namespace EnumeratorsExample
 
             Console.WriteLine("=== Standard Programming Algorithms ===\n");
 
-            int[] algoNumbers = { 4, 1, 9, -3, 7, 2 };
+            int[] algoNumbers = { 4, 1, 9, -3, -2, 7, 2 };
             Enumerators.IEnumerator<int> algoEnumerator = new ArrayEnumerator<int>(algoNumbers);
 
+
             // 1. SUM
-            int totalSum = algoEnumerator.Sum();
+            int totalSum = algoEnumerator.Sum((x) => x);
             Console.WriteLine($"Sum of elements: {totalSum}");
+
+            // 1. COUNT with SUM (Using Sum to count elements)
+            int count = algoEnumerator.Sum((x) => 1);
+            Console.WriteLine($"Number of elements with SUM count: {count}");
 
             // 2. COUNT, how many elements are positive numbers
             int positiveCount = algoEnumerator.Count(x => x > 0);
             Console.WriteLine($"Number of positive elements: {positiveCount}");
 
-            // 3. MAX
+            // 3. MAX (Simple)
             int maxValue = algoEnumerator.Max();
             Console.WriteLine($"Maximum element: {maxValue}");
+
+            // 3. MAX with evaluator (e.g., finding the element with the maximum absolute value)
+            var (maxAbsValue, elementWithMaxAbs) = algoEnumerator.Max(x => Math.Abs(x));
+            Console.WriteLine($"Max absolute value is {maxAbsValue} belonging to element {elementWithMaxAbs}");
 
             // 4. CHECK if there are any negative numbers
             bool hasNegative = algoEnumerator.Any(x => x < 0);
             Console.WriteLine($"Contains negative numbers: {hasNegative}");
 
-            // 5. SEARCH for the first element greater than 5
+            // 5. SEARCH (TryFind) for the first element greater than 5
             if (algoEnumerator.TryFind(x => x > 5, out int foundValue))
             {
                 Console.WriteLine($"First element greater than 5: {foundValue}");
@@ -150,6 +159,37 @@ namespace EnumeratorsExample
             else
             {
                 Console.WriteLine("No element greater than 5 was found.");
+            }
+
+            // 6.1 SELECT the exact element that equals 10 (Throws if not found, assumes it exists!)
+            try
+            {
+                int exactlyTen = algoEnumerator.Select(x => x == 10);
+                Console.WriteLine($"Selected exact element: {exactlyTen}");
+            }
+            catch (InvalidOperationException ex)
+            {
+                Console.WriteLine($"Select failed: {ex.Message}");
+            }
+
+            // 6.2 SELECT the first element that is negative
+            try
+            {
+                int firstNeg = algoEnumerator.Select(x => x < 0);
+                Console.WriteLine($"Selected first negative element: {firstNeg}");
+            } catch (InvalidOperationException ex)
+            {
+                Console.WriteLine($"Select failed: {ex.Message}");
+            }
+
+            // 7. CONDITIONAL MAX (Find the maximum among the EVEN numbers)
+            if (algoEnumerator.Max(x => x, x => x % 2 == 0, out int maxEven, out int evenElem))
+            {
+                Console.WriteLine($"The maximum even number is {maxEven} (Element: {evenElem})");
+            }
+            else
+            {
+                Console.WriteLine("No even numbers found in the collection.");
             }
 
             /*
@@ -160,6 +200,8 @@ namespace EnumeratorsExample
              */
 
             #endregion
+
+
         }
     }
 }
